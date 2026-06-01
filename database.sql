@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     due_date DATE NULL,
     priority ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
     status ENUM('pending', 'in_progress', 'completed') NOT NULL DEFAULT 'pending',
+    archived TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     PRIMARY KEY (id),
@@ -26,5 +27,6 @@ CREATE TABLE IF NOT EXISTS tasks (
     KEY idx_tasks_status (status),
     KEY idx_tasks_priority (priority),
     KEY idx_tasks_due_date (due_date),
+    KEY idx_tasks_archived (archived),
     CONSTRAINT fk_tasks_users FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

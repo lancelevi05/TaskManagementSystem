@@ -10,9 +10,21 @@ if (!is_post() || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
 
 $taskId = (int) ($_POST['id'] ?? 0);
 
+$userId = (int) current_user()['id'];
+
 if ($taskId > 0) {
-    delete_task((int) current_user()['id'], $taskId);
-    flash('success', 'Task deleted successfully.');
+    $task = find_task($userId, $taskId);
+
+    if ($task) {
+        if ((int) $task['archived'] !== 1) {
+            flash('danger', 'Only archived tasks can be deleted.');
+        } else {
+            delete_task($userId, $taskId);
+            flash('success', 'Task deleted successfully.');
+        }
+    } else {
+        flash('danger', 'Task not found.');
+    }
 }
 
 redirect('dashboard.php');

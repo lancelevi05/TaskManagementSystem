@@ -10,6 +10,7 @@ $filters = [
     'query' => trim((string) ($_GET['q'] ?? '')),
     'status' => trim((string) ($_GET['status'] ?? '')),
     'priority' => trim((string) ($_GET['priority'] ?? '')),
+    'archived' => (int) ($_GET['archived'] ?? 0),
     'sort' => trim((string) ($_GET['sort'] ?? 'newest')),
 ];
 
@@ -23,7 +24,7 @@ include __DIR__ . '/includes/header.php';
         <h1>Keep the board moving without losing the details.</h1>
         <p class="section-subtitle">Search, filter, complete, and edit tasks from one clear workspace. Your data stays scoped to your account.</p>
         <div class="hero-cta">
-            <a class="button button-dark" href="task-create.php">Create new task</a>
+            <a class="button button-dark" href="task-create.php" >Create new task</a>
             <a class="button button-ghost" href="#task-list">Browse tasks</a>
         </div>
     </div>
@@ -53,6 +54,10 @@ include __DIR__ . '/includes/header.php';
             <option value="low" <?= $filters['priority'] === 'low' ? 'selected' : '' ?>>Low</option>
             <option value="medium" <?= $filters['priority'] === 'medium' ? 'selected' : '' ?>>Medium</option>
             <option value="high" <?= $filters['priority'] === 'high' ? 'selected' : '' ?>>High</option>
+        </select>
+        <select name="archived">
+            <option value="0" <?= $filters['archived'] === 0 ? 'selected' : '' ?>>Active tasks</option>
+            <option value="1" <?= $filters['archived'] === 1 ? 'selected' : '' ?>>Archived tasks</option>
         </select>
         <select name="sort">
             <option value="newest" <?= $filters['sort'] === 'newest' ? 'selected' : '' ?>>Newest first</option>
@@ -90,13 +95,20 @@ include __DIR__ . '/includes/header.php';
                         <form method="post" action="task-toggle.php">
                             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                             <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                            <button type="submit" class="link-button"><?= $task['status'] === 'completed' ? 'Reopen' : 'Mark complete' ?></button>
+                            <button type="submit" class="link-button" style="color:white;"><?= $task['status'] === 'completed' ? 'Reopen' : 'Mark complete' ?></button>
                         </form>
-                        <form method="post" action="task-delete.php" onsubmit="return confirm('Delete this task?');">
+                        <form method="post" action="task-archive.php">
                             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                             <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                            <button type="submit" class="link-button danger">Delete</button>
+                            <button type="submit" class="link-button danger"><?= $task['archived'] === 1 ? 'Unarchive' : 'Archive' ?></button>
                         </form>
+                        <?php if ($task['archived'] === 1): ?>
+                            <form method="post" action="task-delete.php" onsubmit="return confirm('Permanently delete this archived task? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
+                                <button type="submit" class="link-button danger">Delete</button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </article>
             <?php endforeach; ?>
