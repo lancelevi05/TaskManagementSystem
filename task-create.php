@@ -37,7 +37,7 @@ include __DIR__ . '/includes/header.php';
         <textarea name="description" placeholder="Description"><?= e((string) old('description')) ?></textarea>
 
         <div class="form-row">
-            <input type="date" name="due_date" value="<?= e((string) old('due_date')) ?>">
+            <input type="date" name="due_date" value="<?= e((string) old('due_date', date('Y-m-d', strtotime('+7 days')))) ?>">
             <select name="priority">
                 <option value="low" <?= old('priority') === 'low' ? 'selected' : '' ?>>Low priority</option>
                 <option value="medium" <?= old('priority', 'medium') === 'medium' ? 'selected' : '' ?>>Medium priority</option>

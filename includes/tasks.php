@@ -43,8 +43,18 @@ function list_tasks(int $userId, array $filters = []): array
     }
 
     if (!empty($filters['query'])) {
-        $conditions[] = '(title LIKE :query OR description LIKE :query)';
-        $params['query'] = '%' . $filters['query'] . '%';
+        $conditions[] = '(title LIKE :query_title OR description LIKE :query_description)';
+        $params['query_title'] = '%' . $filters['query'] . '%';
+        $params['query_description'] = '%' . $filters['query'] . '%';
+    }
+
+    // archived filter: show active tasks by default (archived = 0)
+    if (isset($filters['archived'])) {
+        $archived = (int) $filters['archived'];
+        $conditions[] = 'archived = :archived';
+        $params['archived'] = $archived;
+    } else {
+        $conditions[] = 'archived = 0';
     }
 
     $allowedSorts = [
@@ -57,7 +67,7 @@ function list_tasks(int $userId, array $filters = []): array
     $sort = $allowedSorts[$filters['sort'] ?? 'newest'] ?? $allowedSorts['newest'];
 
     $sql = sprintf(
-        'SELECT id, title, description, due_date, priority, status, created_at, updated_at
+        'SELECT id, title, description, due_date, priority, status, archived, created_at, updated_at
          FROM tasks
          WHERE %s
          ORDER BY %s',
